@@ -1,0 +1,103 @@
+///Author : Habibul Mursaleen, CSE(2nd year), PSTU, Bangladesh
+///runtime : 0.232s
+///memory :4200 kB
+
+#include <bits/stdc++.h>
+using namespace std;
+const int M = 1e5 + 1;
+int arr[M], tree[M * 4];
+#define show(x) cout << #x << " : " << x << endl
+#define INF INT_MAX
+
+void init(int node, int st, int en)
+{
+    if(st == en)
+    {
+        tree[node] = arr[st];
+        return;
+    }
+    int left = 2 * node, right = left + 1, md = (st + en) / 2;
+    init(left, st, md);
+    init(right, md + 1, en);
+    tree[node] = tree[left] + tree[right];
+}
+
+int query(int node, int st, int en, int l, int r)
+{
+    if(l > en or r < st or st > en) return 0;
+    if(l <= st and r >= en) return tree[node];
+    else
+    {
+       int left = 2 * node, right = left + 1, md = (st + en) / 2;
+       int p1 = query(left, st, md, l, r);
+       int p2 = query(right, md + 1, en, l, r);
+       return p1 + p2;
+    }
+}
+
+void update1(int node, int st, int en, int i)
+{
+    if(i < st or i > en) return;
+    if(st == en)
+    {
+        printf("%d\n", tree[node]);
+        tree[node] = 0;
+        return;
+    }
+    int left = 2 * node, right = left + 1, md = (st + en) / 2;
+    update1(left, st, md, i);
+    update1(right, md + 1, en, i);
+    tree[node] = tree[left] + tree[right];
+}
+
+void update2(int node, int st, int en, int i, int val)
+{
+    if(i < st or i > en or st > en) return;
+    if(st == en)
+    {
+        tree[node] += val;
+        return;
+    }
+    int left = 2 * node, right = left + 1, md = (st + en) / 2;
+    update2(left, st, md, i, val);
+    update2(right, md + 1, en, i, val);
+    tree[node] = tree[left] + tree[right];
+}
+
+int main ()
+{
+    ios_base :: sync_with_stdio(false), cin.tie(0), cout.tie(0);
+    int t, kase = 1;
+    cin >>  t;
+    while(t--)
+    {
+        int n, q, i;
+        cin >> n >> q;
+        printf("Case %d:\n", kase++);
+        for(i = 0; i < n; i++)
+        {
+            cin >> arr[i];
+        }
+        init(1, 0, n - 1);
+        while(q--)
+        {
+            int type, in, val, l, r;
+            cin >> type;
+            if(type == 1)
+            {
+                cin >> in;
+                update1(1, 0, n - 1, in);
+            }
+            else if(type == 2)
+            {
+                cin >> in >> val;
+                update2(1, 0, n - 1, in, val);
+            }
+            else if(type == 3)
+            {
+                cin >> l >> r;
+                printf("%d\n", query(1, 0, n - 1, l, r));
+            }
+        }
+    }
+}
